@@ -20,8 +20,14 @@ BACKUP_FILE="$BACKUP_ROOT/backup_$TIMESTAMP.tar.gz"
 echo "대상: $TARGET_DIR | 기준일: $DAYS일"
 
 echo "파일 검색 및 압축 중..."
-find "$TARGET_DIR" -type f -mtime +"$DAYS" -print0 | \
-tar --null -cvzf "$BACKUP_FILE" --files-from -
+FILES=$(find "$TARGET_DIR" -type f -mtime +"$DAYS")
+
+if [ -z "$FILES" ]; then
+    echo "백업할 파일이 없습니다."
+    exit 0
+fi
+
+echo "$FILES" | tar -cvzf "$BACKUP_FILE" -T -
 
 if [ $? -eq 0 ]; then
     echo "압축 완료: $BACKUP_FILE"
